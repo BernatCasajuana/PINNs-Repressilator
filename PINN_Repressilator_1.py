@@ -45,8 +45,14 @@ ic1 = dde.icbc.IC(geom, lambda x: 1, boundary, component=0)
 ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
 ic3 = dde.icbc.IC(geom, lambda x: 1.2, boundary, component=2)
 
+print(ic1, ic2, ic3)
+
+####
+
 # Problem setup
 data = dde.data.PDE(geom, ode_system, [ic1, ic2, ic3], num_domain=2000, num_boundary=2, num_test=1000)
+print(data.test_x, data.test_y)
+exit()
 
 # PINN architecture
 layer_size = [1] + [50] * 3 + [3]
@@ -57,7 +63,7 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 # Compile and train
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001) #loss_weights=[1, 1, 1, 1, 1, 1, 1, 1, 1])
-model.train(epochs=30000)
+model.train(epochs=1000)
 model.compile("L-BFGS")
 model.train()
 
