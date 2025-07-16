@@ -36,7 +36,7 @@ ic3 = dde.icbc.IC(geom, lambda X: 27, boundary, component=2)
 
 # Assign the data from Lorenz.npz to the corresponding t (time), x, y and z (coordinates) values for training.
 def gen_traindata():
-    data = np.load("Lorenz.npz")
+    data = np.load("../../Datasets/Lorenz.npz")
     return data["t"], data["y"]
 
 # Organize and assign the training data to the corresponding variables.
