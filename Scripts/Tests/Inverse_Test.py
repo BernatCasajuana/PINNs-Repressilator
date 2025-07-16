@@ -1,10 +1,12 @@
 # Lorentz Equations with PINN using DeepXDE. True parameters: C1=10, C2=15, C3=8/3.
 
 # Import necessary libraries
+import os
+os.environ["DDE_BACKEND"] = "tensorflow"  # Force TensorFlow backend before importing deepxde
+import tensorflow as tf
 import deepxde as dde
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 
 # Define the Lorenz system parameters (initial suspected values = 1)
 C1 = dde.Variable(1.0)
@@ -14,9 +16,11 @@ C3 = dde.Variable(1.0)
 # Define the geometry of the problem (time domain)
 geom = dde.geometry.TimeDomain(0, 3)
 
-# Define the Lorenz system of ODEs. Solution (y) is a vector of three components (y1, y2, y3) representing the Lorenz attractor (coordinates x, y, z).
+# Define the Lorenz system ODEs as a function for DeepXDE (with TensorFlow tensors)
 def Lorenz_system(x, y):
-    y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:]
+    x = tf.convert_to_tensor(x)
+    y = tf.convert_to_tensor(y)
+    y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:3]
     dy1_x = dde.grad.jacobian(y, x, i=0)
     dy2_x = dde.grad.jacobian(y, x, i=1)
     dy3_x = dde.grad.jacobian(y, x, i=2)
@@ -36,7 +40,7 @@ ic3 = dde.icbc.IC(geom, lambda X: 27, boundary, component=2)
 
 # Assign the data from Lorenz.npz to the corresponding t (time), x, y and z (coordinates) values for training.
 def gen_traindata():
-    data = np.load("../../Datasets/Lorenz.npz")
+    data = np.load("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Lorenz.npz")
     return data["t"], data["y"]
 
 # Organize and assign the training data to the corresponding variables.
@@ -66,10 +70,7 @@ variable = dde.callbacks.VariableValue([C1, C2, C3], period=600, filename="varia
 # Train the model with the specified number of iterations and callbacks. The variable callback saves the values of C1, C2, and C3 every 600 iterations.
 losshistory, train_state = model.train(iterations=60000, callbacks=[variable])
 
-# Predict the numeric values of the parameters after training
-import tensorflow as tf
-
-print("Predicted parameters:")
-print(f"C1 = {tf.keras.backend.get_value(C1):.6f}")
-print(f"C2 = {tf.keras.backend.get_value(C2):.6f}")
-print(f"C3 = {tf.keras.backend.get_value(C3):.6f}")
+# Get the predicted values of the parameters
+print(f"C1 = {C1.value():.6f}")
+print(f"C2 = {C2.value():.6f}")
+print(f"C3 = {C3.value():.6f}")
