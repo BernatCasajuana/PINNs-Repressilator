@@ -74,3 +74,8 @@ losshistory, train_state = model.train(iterations=60000, callbacks=[variable])
 print(f"C1 = {C1.value():.6f}")
 print(f"C2 = {C2.value():.6f}")
 print(f"C3 = {C3.value():.6f}")
+
+# Obtained:
+# C1 = 10.005228
+# C2 = 14.999722
+# C3 = 2.667669
