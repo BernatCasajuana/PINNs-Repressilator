@@ -1,2 +1,1 @@
-# PINNs_Repressilator
-Physics-Informed Neural Networks (PINNs) for Repressilator Dynamics
+# Physics-Informed Neural Networks (PINNs) for Repressilator Dynamics
