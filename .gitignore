@@ -1,2 +1,4 @@
-# Files to ignore in the repository
+# Ignore macOS system files
 .DS_Store
+# Ignore the file that stores the values of C1, C2, and C3 during training in the Inverse_Test.py script
+variables.dat
