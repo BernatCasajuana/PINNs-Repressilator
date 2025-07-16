@@ -3,3 +3,4 @@
 
 # Ignore the file that stores the values of C1, C2, and C3 during training in the Inverse_Test.py script
 variables.datvariables.dat
+variables.dat
