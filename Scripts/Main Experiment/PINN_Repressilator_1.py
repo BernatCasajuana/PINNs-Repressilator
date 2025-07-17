@@ -5,7 +5,7 @@ import scipy.integrate
 import deepxde as dde
 
 # %% Define parameters, initial conditions, and time domain
-beta = 1
+beta = 10
 n = 3
 x0 = np.array([1, 1, 1.2])
 n_points = 1000
