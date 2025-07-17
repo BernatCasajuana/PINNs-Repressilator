@@ -6,14 +6,14 @@ import deepxde as dde
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Define the Lorenz system parameters (initial suspected values = 1)
+# Define the system parameters (initial suspected values)
 C1 = dde.Variable(1.0)
 C2 = dde.Variable(1.0)
 
 # Define the geometry of the problem (time domain)
 geom = dde.geometry.TimeDomain(0, 40)
 
-# Define the Lorenz system ODEs as a function for DeepXDE (with TensorFlow tensors)
+# Define the ODE system as a function for DeepXDE (with TensorFlow tensors)
 def ode_system(x, y):
     x = tf.convert_to_tensor(x)
     y = tf.convert_to_tensor(y)
@@ -35,11 +35,19 @@ ic1 = dde.icbc.IC(geom, lambda x: 1, boundary, component=0)
 ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
 ic3 = dde.icbc.IC(geom, lambda x: 1.2, boundary, component=2)
 
+# Load observed data from Repressilator.npz
 def gen_traindata():
-    data = np.load("Repressilator.npz")
+    data = np.load("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator.npz")
     return data["t"], data["y"]
 
-# Define the PDE data for the Lorenz system, including the initial conditions and observation points. Anchors are extra points where the model will be evaluated, in this case the time points of the training data.
+observe_t, observe_y = gen_traindata()
+
+# Define PointSetBCs using the observed data
+observe_y0 = dde.icbc.PointSetBC(observe_t, observe_y[:, 0:1], component=0)
+observe_y1 = dde.icbc.PointSetBC(observe_t, observe_y[:, 1:2], component=1)
+observe_y2 = dde.icbc.PointSetBC(observe_t, observe_y[:, 2:3], component=2)
+
+# Define the PDE data for the system, including the initial conditions and observation points. Anchors are extra points where the model will be evaluated, in this case the time points of the training data.
 data = dde.data.PDE(
     geom,
     ode_system,
@@ -54,8 +62,10 @@ net = dde.nn.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
 
 # Compile the model with the data, optimizer (adam), learning rate, and external trainable variables (C1 and C2). The external trainable variables are the parameters.
 model = dde.Model(data, net)
-model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2])
+model.compile("adam", lr=0.0001, external_trainable_variables=[C1, C2])
 variable = dde.callbacks.VariableValue([C1, C2], period=600, filename="variables.dat")
+model.compile("L-BFGS", external_trainable_variables=[C1, C2])
+model.train()
 
 # Train the model with the specified number of iterations and callbacks. The variable callback saves the values of C1, C2, and C3 every 600 iterations.
 losshistory, train_state = model.train(iterations=60000, callbacks=[variable])
