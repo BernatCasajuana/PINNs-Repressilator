@@ -35,6 +35,7 @@ t_values = np.linspace(0, 20, 200)
 
 # Solve ODE system with scipy's odeint
 sol_odeint = odeint(protein_repressilator_rhs, x0, t_values, args=(beta, n))
+print("ODEINT solution shape:", sol_odeint.shape)
 
 # Evaluate the TensorFlow RHS on the odeint solution at each time point
 sol_tensor = []
@@ -42,8 +43,10 @@ for t in t_values:
     t_tensor = tf.constant([[t]], dtype=tf.float32)
     # Get the solution at the closest time point from odeint
     y_tensor = tf.constant(sol_odeint[np.argmin(np.abs(t_values - t))].reshape(1, 3), dtype=tf.float32)
-    dx = ode_system_manual(t_tensor, y_tensor).numpy().flatten()
+    #dx = ode_system_manual(t_tensor, y_tensor).numpy().flatten()
+    dx = ode_system_manual(t_tensor, y_tensor).numpy()
     sol_tensor.append(dx)
+    print(t_tensor.shape, y_tensor.shape, np.array(sol_tensor).shape)
 sol_tensor = np.array(sol_tensor)
 
 # Compute numerical derivative of the odeint solution using finite differences
