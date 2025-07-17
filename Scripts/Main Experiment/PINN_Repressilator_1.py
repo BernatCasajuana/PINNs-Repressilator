@@ -23,6 +23,9 @@ def protein_repressilator_rhs(x, t, beta, n):
 
 x_ode = scipy.integrate.odeint(protein_repressilator_rhs, x0, t.flatten(), args=(beta, n))
 
+# Save as .npz file for inverse problem
+np.savez("Repressilator.npz", t=t, y=x_ode)
+
 # %% Define for PINN simulation
 geom = dde.geometry.TimeDomain(0, t_max)
 
