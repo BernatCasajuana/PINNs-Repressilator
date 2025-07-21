@@ -1,4 +1,4 @@
-# Comparing numerical derivatives from scipy's odeint with TensorFlow's evaluation of the ODE system (asses correct formulation)
+# Comparing numerical derivatives from scipy's odeint with TensorFlow's evaluation of the ODE system (correct formulation)
 
 # %% Import necessary libraries
 import os
@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 
-# %% Define parameters
+# %% Define parameters and initial conditions
 beta = 10
 n = 3
 x0 = np.array([1.0, 1.0, 1.2])
