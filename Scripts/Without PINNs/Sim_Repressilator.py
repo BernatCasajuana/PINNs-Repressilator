@@ -33,7 +33,6 @@ plt.rcParams['figure.dpi'] = 200
 interactive_python_plots = True
 
 if interactive_python_plots:
-    # Plots in html format
     output_file("bokeh_plot.html")
 else:
     pass

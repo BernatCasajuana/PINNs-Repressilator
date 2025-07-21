@@ -5,9 +5,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import random
 
-# %% Define the neural network
+# %% Neural network architecture
 # 1 input layer, 3 hidden layers with 32 nodes each, tanh activation function, and 1 output layer
 NN = tf.keras.models.Sequential([
     tf.keras.layers.Input((1,)),
@@ -23,7 +22,7 @@ NN.summary()
 # Adam optimizer with a learning rate of 0.001 (minimizing error between the predicted function and actual ODE solution)
 optm = tf.keras.optimizers.Adam(learning_rate = 0.001)
 
-# %% Define ODE System and Loss Function
+# %% Define ODE system and loss function
 def ode_system(t, net):
     t = t.reshape(-1,1)
     t = tf.constant(t, dtype = tf.float32)

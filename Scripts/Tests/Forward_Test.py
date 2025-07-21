@@ -8,17 +8,17 @@ import matplotlib.pyplot as plt
 import os
 
 # %% Define the model
-# Geometry of the problem (time domain), where the network will learn the ODE system
+# Geometry of the problem (time domain)
 geom = dde.geometry.TimeDomain(0, 30)
 
-# Define ODE system and parameters
+# Define ODE system
 def ode_system(x, y):
     y1, y2 = y[:, 0:1], y[:, 1:]
     dy1_x = dde.grad.jacobian(y, x, i=0)
     dy2_x = dde.grad.jacobian(y, x, i=1)
     return [dy1_x - y2, dy2_x + y1]
 
-# Initial conditions within the geometry, function and boundary
+# Initial conditions
 def boundary(x, _):
     return np.isclose(x[0], 0)
 
@@ -29,7 +29,7 @@ ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
 # def func(x):
     # return np.hstack((np.sin(x), np.cos(x)))
 
-# Define the problem
+# Set up the problem
 data = dde.data.PDE(geom, ode_system, [ic1, ic2], num_domain=2000, num_boundary=2, num_test=1000)
 
 # Neural network architecture
@@ -39,7 +39,7 @@ initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
 # %% Compile and train the model
-# Define data, optimizer, learning rate, metrics and training iterations.
+# Define data, optimizer, learning rate, metrics and training iterations
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001)
 losshistory, train_state = model.train(iterations=20000)
@@ -48,7 +48,7 @@ losshistory, train_state = model.train(iterations=20000)
 model.compile("L-BFGS")
 losshistory, train_state = model.train()
 
-# %% Plot the results
+# %% Plot the loss results
 # Save and plot the best trained result and loss history
 def saveplot_manual(losshistory, train_state, model, data, issave=True, isplot=True):
     folder = "/Users/bernatcasajuana/Documents/Pràctiques CBBL/PCII PINN/Data"
@@ -94,11 +94,12 @@ def saveplot_manual(losshistory, train_state, model, data, issave=True, isplot=T
 
 saveplot_manual(losshistory, train_state, model, data, issave=True, isplot=False)
 
-# Prediction in [0, 30] domain
+# %% Plot the prediction results
+# Obtain the prediction in [0, 30] domain
 X_full = np.linspace(0, 30, 1000)[:, None]
 Y_full = model.predict(X_full)
 
-# Plot the predictions over the full domain with extrapolation
+# Set up the plot
 plt.figure(figsize=(10, 6))
 
 # [0, 10] as "real"
