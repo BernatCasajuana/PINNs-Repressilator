@@ -1,3 +1,5 @@
+# Simulation of the Repressilator with Odeint and visualization using Bokeh
+
 # %% Install packages
 import subprocess
 import sys
