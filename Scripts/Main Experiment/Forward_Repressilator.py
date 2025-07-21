@@ -52,11 +52,21 @@ ic1 = dde.icbc.IC(geom, lambda x: 1, boundary, component=0)
 ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
 ic3 = dde.icbc.IC(geom, lambda x: 1.2, boundary, component=2)
 
+# Obtain observed data from odeint solution
+t_obs = t[::10]        # Every 10th time point
+x_obs = x_ode[::10]    # Corresponding concentrations
+
+# Implement observed data as boundary conditions
+observe_bc = []
+for i in range(3):
+    bc = dde.icbc.PointSetBC(t_obs, x_obs[:, i:i+1], component=i)
+    observe_bc.append(bc)
+
 # Problem setup
-data = dde.data.PDE(geom, ode_system, [ic1, ic2, ic3], num_domain=2000, num_boundary=2, num_test=1000)
+data = dde.data.PDE(geom, ode_system, [ic1, ic2, ic3] + observe_bc, num_domain=5000, num_boundary=2, num_test=1000)
 
 # Neural network architecture
-layer_size = [1] + [100] * 4 + [3]
+layer_size = [1] + [100] * 5 + [3]
 activation = "sin"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
@@ -64,8 +74,8 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 # %% Compile and train
 # Define data, optimizer, learning rate, metrics and training iterations
 model = dde.Model(data, net)
-model.compile("adam", lr=0.001) # implement loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
-model.train(epochs=30000)
+model.compile("adam", lr=0.001) # implement weight for each loss term if needed: loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
+model.train(epochs=5000)
 
 # Fine tuning with L-BFGS optimizer
 model.compile("L-BFGS")
