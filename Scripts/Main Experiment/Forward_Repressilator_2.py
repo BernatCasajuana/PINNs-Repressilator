@@ -85,6 +85,11 @@ model.train(epochs=30000)
 model.compile("L-BFGS")
 model.train()
 
+losshistory, train_state = model.train()
+
+# %% Save and plot training results and loss history
+dde.saveplot(losshistory, train_state, issave=True, isplot=True)
+
 # %% Obtain the PINN prediction
 y_pred = model.predict(t) * scale  # Denormalize the output
 
