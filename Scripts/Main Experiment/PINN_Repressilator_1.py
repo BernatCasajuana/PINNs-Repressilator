@@ -1,3 +1,5 @@
+# Prediction of Repressilator dynamics using PINNs and DeepXDE
+
 # %% Import necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,7 +11,7 @@ beta = 10
 n = 3
 x0 = np.array([1, 1, 1.2])
 n_points = 1000
-t_max = 40
+t_max = 20
 t = np.linspace(0, t_max, n_points)[:, None]
 
 # %% Simulation with ODEINT
@@ -54,8 +56,8 @@ ic3 = dde.icbc.IC(geom, lambda x: 1.2, boundary, component=2)
 data = dde.data.PDE(geom, ode_system, [ic1, ic2, ic3], num_domain=2000, num_boundary=2, num_test=1000)
 
 # Neural network architecture
-layer_size = [1] + [50] * 3 + [3]
-activation = "tanh"
+layer_size = [1] + [100] * 4 + [3]
+activation = "sin"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
@@ -63,7 +65,7 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 # Define data, optimizer, learning rate, metrics and training iterations
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001) # implement loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
-model.train(epochs=5000)
+model.train(epochs=30000)
 
 # Fine tuning with L-BFGS optimizer
 model.compile("L-BFGS")
@@ -78,12 +80,12 @@ labels = ["x1", "x2", "x3"]
 colors = ["tab:blue", "tab:orange", "tab:green"]
 
 for i in range(3):
-    plt.plot(t, x_ode[:, i], "-", color=colors[i], label=f"{labels[i]} (ODE)")
-    plt.plot(t, y_pred[:, i], "--", color=colors[i], label=f"{labels[i]} (PINN)")
+    plt.plot(t, x_ode[:, i], "-", color=colors[i], label=f"{labels[i]} (ODE simulation)")
+    plt.plot(t, y_pred[:, i], "--", color=colors[i], label=f"{labels[i]} (PINN prediction)")
 
 plt.xlabel("Time")
 plt.ylabel("Protein Concentration")
-plt.title("Repressilator Comparison: ODE vs PINN")
+plt.title("Repressilator Dynamics: ODE vs PINN")
 plt.legend()
 plt.grid()
 plt.tight_layout()

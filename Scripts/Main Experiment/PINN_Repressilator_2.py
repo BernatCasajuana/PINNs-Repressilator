@@ -1,3 +1,5 @@
+# Prediction of Repressilator dynamics using PINNs and DeepXDE
+
 # %% Import necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,7 +12,7 @@ n = 3
 x0 = np.array([1, 1, 1.2])
 n_points = 1000
 t = np.linspace(0, 1, n_points)[:, None]
-t_max = 40
+t_max = 20
 t_eval = t * t_max
 
 # %% Simulation with ODEINT
@@ -24,10 +26,16 @@ def protein_repressilator_rhs(x, t, beta, n):
 
 x_ode = scipy.integrate.odeint(protein_repressilator_rhs, x0, t_eval.flatten(), args=(beta, n))
 
-# %% Define PINN simulation
-scale = np.max(x_ode) # Normalization scale based on ODE solution
+# Save as .npz file for inverse problem
+np.savez("Repressilator.npz", t=t, y=x_ode)
+
+# %% PINN simulation setup
+scale = np.max(x_ode) # Normalization scale based on odeint solution
+
+# Geometry of the problem (time domain)
 geom = dde.geometry.TimeDomain(0, 1)
 
+# Define ODE system with normalization
 def ode_system(x, y):
     y1, y2, y3 = y[:, 0:1] * scale, y[:, 1:2] * scale, y[:, 2:3] * scale
     dy1 = dde.grad.jacobian(y, x, i=0, j=0) * scale / t_max
@@ -48,36 +56,39 @@ ic1 = dde.icbc.IC(geom, lambda x: 1, boundary, component=0)
 ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
 ic3 = dde.icbc.IC(geom, lambda x: 1.2, boundary, component=2)
 
-# Observed data from ODEINT to guide the PINN 
+# Implement observed data from odeint solution
 indices = np.linspace(0, n_points - 1, 200).astype(int)
 observed_t = t[indices]
 observed_y = (x_ode / scale)[indices]
 
-# Observational conditions
+# Define observed boundary conditions
 observed_bcs = [
     dde.icbc.PointSetBC(observed_t, observed_y[:, i:i+1], component=i)
     for i in range(3)]
 
-# Define the problem
+# Problem setup
 data = dde.data.PDE(geom, ode_system, [ic1, ic2, ic3, *observed_bcs], num_domain=2000, num_boundary=2, num_test=1000)
 
-# PINN architecture
+# Neural network architecture
 layer_size = [1] + [50] * 3 + [3]
 activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
-# Compile and train
+# %% Compile and train
+# Define data, optimizer, learning rate, metrics and training iterations
 model = dde.Model(data, net)
-model.compile("adam", lr=0.001) #loss_weights=[1, 1, 1, 1, 1, 1, 1, 1, 1])
+model.compile("adam", lr=0.001) # implement: loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
 model.train(epochs=30000)
+
+# Fine tuning with L-BFGS optimizer
 model.compile("L-BFGS")
 model.train()
 
-# %% Prediction with PINN
+# %% Obtain the PINN prediction
 y_pred = model.predict(t) * scale  # Denormalize the output
 
-# %% Plotting results
+# %% Plot the results
 plt.figure(figsize=(12, 6))
 labels = ["x1", "x2", "x3"]
 colors = ["tab:blue", "tab:orange", "tab:green"]
