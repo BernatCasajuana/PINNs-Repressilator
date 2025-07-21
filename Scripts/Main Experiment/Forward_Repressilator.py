@@ -52,9 +52,9 @@ ic1 = dde.icbc.IC(geom, lambda x: 1, boundary, component=0)
 ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
 ic3 = dde.icbc.IC(geom, lambda x: 1.2, boundary, component=2)
 
-# Obtain observed data from odeint solution
-t_obs = t[::10]        # Every 10th time point
-x_obs = x_ode[::10]    # Corresponding concentrations
+# Obtain observed data from odeint solution (experimental data in practice)
+t_obs = t[::10] # Every 10 time points
+x_obs = x_ode[::10] # Corresponding concentrations
 
 # Implement observed data as boundary conditions
 observe_bc = []
