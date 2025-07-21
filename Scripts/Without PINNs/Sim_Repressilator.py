@@ -2,7 +2,6 @@
 # From: https://biocircuits.github.io
 
 # %% Import necessary libraries, install packages and configure plotting
-
 import subprocess
 import sys
 import numpy as np
@@ -40,7 +39,6 @@ else:
     pass
 
 # %% Protein Repressilator Model
-
 # Define the right-hand side of the ODEs
 def protein_repressilator_rhs(x, t, beta, n):
     """
@@ -77,7 +75,6 @@ def _solve_protein_repressilator(beta, n, t_max):
 t, x = _solve_protein_repressilator(beta_slider_protein.value, n_slider_protein.value, 40.0)
 
 # %% Plotting the Protein Repressilator
-
 # Build the plot
 colors = colorcet.b_glasbey_category10[:3]
 

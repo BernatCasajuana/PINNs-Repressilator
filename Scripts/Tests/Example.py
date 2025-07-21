@@ -1,4 +1,5 @@
-# Example from: https://i-systems.github.io/tutorial/KSNVE/220525/01_PINN.html#3.-Methond-for-Solving-ODE-with-Neural-Networks
+# Simple example of solving an ODE using a PINN (Physics-Informed Neural Network)
+# From: https://i-systems.github.io/tutorial/KSNVE/220525/01_PINN.html#3.-Methond-for-Solving-ODE-with-Neural-Networks
 
 # %% Example.py
 import numpy as np
