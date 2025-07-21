@@ -1,20 +1,10 @@
-# Simulation of the Repressilator with Odeint and visualization using Bokeh
+# Simulation of the Repressilator with Odeint and interactive visualization using Bokeh
+# From: https://biocircuits.github.io
 
-# %% Install packages
+# %% Import necessary libraries, install packages and configure plotting
+
 import subprocess
 import sys
-
-packages = [
-    "biocircuits",
-    "colorcet",
-    "watermark",
-    "bokeh",
-]
-
-for package in packages:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
-
-# %% Import libraries and configure plotting
 import numpy as np
 import scipy.integrate
 import scipy.optimize
@@ -23,26 +13,35 @@ import bokeh.plotting
 import bokeh.io
 import colorcet
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
-# Configure Bokeh and Matplotlib for plotting in Python scripts
+from mpl_toolkits.mplot3d import Axes3D
 from bokeh.plotting import output_file, show
 
-# Millora la resolució dels gràfics de Matplotlib
-plt.rcParams['figure.dpi'] = 200  # Equivalent a "retina"
+packages = [
+    "biocircuits",
+    "colorcet",
+    "watermark",
+    "bokeh",
+    ]
 
-# Decideix com vols visualitzar els gràfics interactius de Bokeh
-interactive_python_plots = True  # o False si no vols obrir navegador
+for package in packages:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
+
+# Improve plot resolution
+plt.rcParams['figure.dpi'] = 200
+
+# Interactive plots with Bokeh
+interactive_python_plots = True
 
 if interactive_python_plots:
-    # Mostra els gràfics Bokeh en un fitxer HTML temporal
+    # Plots in html format
     output_file("bokeh_plot.html")
-    # Quan tinguis un plot `p`, el mostraràs amb: show(p)
 else:
-    # Si no vols interactius, pots ignorar output_file i usar show amb reserva
     pass
 
 # %% Protein Repressilator Model
+
+# Define the right-hand side of the ODEs
 def protein_repressilator_rhs(x, t, beta, n):
     """
     Returns 3-array of (dx_1/dt, dx_2/dt, dx_3/dt)
@@ -78,6 +77,7 @@ def _solve_protein_repressilator(beta, n, t_max):
 t, x = _solve_protein_repressilator(beta_slider_protein.value, n_slider_protein.value, 40.0)
 
 # %% Plotting the Protein Repressilator
+
 # Build the plot
 colors = colorcet.b_glasbey_category10[:3]
 
@@ -99,8 +99,7 @@ for color, x_val in zip(colors, labels):
 
 p_rep.legend.location = "top_left"
 
-
-# Set up plot
+# Set up the phase plot
 p_phase = bokeh.plotting.figure(
     frame_width=200, frame_height=200, x_axis_label="x₁", y_axis_label="x₂",
 )
