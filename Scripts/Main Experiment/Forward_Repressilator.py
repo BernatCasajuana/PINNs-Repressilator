@@ -48,9 +48,9 @@ def ode_system(x, y):
 # Initial conditions
 def boundary(_, on_initial):
     return on_initial
-ic1 = dde.icbc.IC(geom, lambda x: 1, boundary, component=0)
-ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
-ic3 = dde.icbc.IC(geom, lambda x: 1.2, boundary, component=2)
+ic1 = dde.icbc.IC(geom, lambda x: x0[0], boundary, component=0)
+ic2 = dde.icbc.IC(geom, lambda x: x0[1], boundary, component=1)
+ic3 = dde.icbc.IC(geom, lambda x: x0[2], boundary, component=2)
 
 # Obtain observed data from odeint solution (experimental data in practice)
 t_obs = t[::10] # Every 10 time points
