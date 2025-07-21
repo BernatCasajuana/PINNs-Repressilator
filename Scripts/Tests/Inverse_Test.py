@@ -51,7 +51,7 @@ observe_y0 = dde.icbc.PointSetBC(observe_t, ob_y[:, 0:1], component=0)
 observe_y1 = dde.icbc.PointSetBC(observe_t, ob_y[:, 1:2], component=1)
 observe_y2 = dde.icbc.PointSetBC(observe_t, ob_y[:, 2:3], component=2)
 
-# Set up the problem (including observed data))
+# Problem setup (including observed data))
 data = dde.data.PDE(geom, Lorenz_system, [ic1, ic2, ic3, observe_y0, observe_y1, observe_y2], num_domain=400, num_boundary=2, anchors=observe_t)
 
 # Neural network architecture

@@ -29,7 +29,7 @@ ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
 # def func(x):
     # return np.hstack((np.sin(x), np.cos(x)))
 
-# Set up the problem
+# Problem setup
 data = dde.data.PDE(geom, ode_system, [ic1, ic2], num_domain=2000, num_boundary=2, num_test=1000)
 
 # Neural network architecture
@@ -94,7 +94,7 @@ def saveplot_manual(losshistory, train_state, model, data, issave=True, isplot=T
 
 saveplot_manual(losshistory, train_state, model, data, issave=True, isplot=False)
 
-# %% Plot the prediction results
+# %% Plot the results
 # Obtain the prediction in [0, 30] domain
 X_full = np.linspace(0, 30, 1000)[:, None]
 Y_full = model.predict(X_full)

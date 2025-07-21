@@ -26,9 +26,11 @@ x_ode = scipy.integrate.odeint(protein_repressilator_rhs, x0, t.flatten(), args=
 # Save as .npz file for inverse problem
 np.savez("Repressilator.npz", t=t, y=x_ode)
 
-# %% Define for PINN simulation
+# %% PINN simulation setup
+# Geometry of the problem (time domain)
 geom = dde.geometry.TimeDomain(0, t_max)
 
+# Define ODE system
 def ode_system(x, y):
     y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:3]
     dy1 = dde.grad.jacobian(y, x, i=0, j=0)
@@ -51,23 +53,26 @@ ic3 = dde.icbc.IC(geom, lambda x: 1.2, boundary, component=2)
 # Problem setup
 data = dde.data.PDE(geom, ode_system, [ic1, ic2, ic3], num_domain=2000, num_boundary=2, num_test=1000)
 
-# PINN architecture
+# Neural network architecture
 layer_size = [1] + [50] * 3 + [3]
 activation = "tanh"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
-# Compile and train
+# %% Compile and train
+# Define data, optimizer, learning rate, metrics and training iterations
 model = dde.Model(data, net)
-model.compile("adam", lr=0.001) #loss_weights=[1, 1, 1, 1, 1, 1, 1, 1, 1])
+model.compile("adam", lr=0.001) # implement loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
 model.train(epochs=5000)
+
+# Fine tuning with L-BFGS optimizer
 model.compile("L-BFGS")
 model.train()
 
-# %% Prediction with PINN
+# %% Obtain the PINN prediction
 y_pred = model.predict(t)
 
-# %% Plotting results
+# %% Plot the results
 plt.figure(figsize=(12, 6))
 labels = ["x1", "x2", "x3"]
 colors = ["tab:blue", "tab:orange", "tab:green"]
