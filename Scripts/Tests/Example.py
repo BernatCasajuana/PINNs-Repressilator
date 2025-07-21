@@ -1,14 +1,14 @@
 # Simple example of solving an ODE using a PINN (Physics-Informed Neural Network)
 # From: https://i-systems.github.io/tutorial/KSNVE/220525/01_PINN.html#3.-Methond-for-Solving-ODE-with-Neural-Networks
 
-# %% Example.py
+# %% Import necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import random
 
-# %% Neural Network (NN)
-# NN definition: 1 input layer, 3 hidden layers with 32 nodes each, tanh activation function, and 1 output layer.
+# %% Define the neural network
+# 1 input layer, 3 hidden layers with 32 nodes each, tanh activation function, and 1 output layer.
 NN = tf.keras.models.Sequential([
     tf.keras.layers.Input((1,)),
     tf.keras.layers.Dense(units = 32, activation = 'tanh'),
@@ -19,7 +19,7 @@ NN = tf.keras.models.Sequential([
 
 NN.summary()
 
-# %% Optimizer
+# %% Select optimizer
 # Adam optimizer with a learning rate of 0.001 (minimizing error between the predicted function and actual ODE solution).
 optm = tf.keras.optimizers.Adam(learning_rate = 0.001)
 
