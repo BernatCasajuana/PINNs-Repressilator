@@ -1,6 +1,7 @@
-# Lorentz Equations with PINN using DeepXDE. True parameters: C1=10, C2=15, C3=8/3.
+# Parameter estimation of the Lorenz ODE system using PINNs and DeepXDE
+# From: https://deepxde.readthedocs.io
 
-# Import necessary libraries
+# %% Import necessary libraries
 import os
 os.environ["DDE_BACKEND"] = "tensorflow"  # Force TensorFlow backend before importing deepxde
 import tensorflow as tf

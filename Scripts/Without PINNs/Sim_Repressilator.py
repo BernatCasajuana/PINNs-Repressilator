@@ -1,4 +1,4 @@
-# Simulation of the Repressilator with Odeint and interactive visualization using Bokeh
+# Simulation of the Repressilator protein model with Odeint and interactive visualization using Bokeh
 # From: https://biocircuits.github.io
 
 # %% Import necessary libraries, install packages and configure plotting
