@@ -84,7 +84,21 @@ model.train()
 # %% Obtain the PINN prediction
 y_pred = model.predict(t)
 
-# %% Plot the results
+# %% Plot the training loss
+loss_history = model.losshistory
+loss_train = np.array(loss_history.loss_train)
+epochs = np.arange(len(loss_train))
+
+plt.figure(figsize=(8, 5))
+plt.semilogy(epochs, loss_train, label="Training loss")
+plt.xlabel("Iteration")
+plt.ylabel("Loss (log scale)")
+plt.title("Training Loss over Iterations")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# %% Plot the prediction results
 plt.figure(figsize=(12, 6))
 labels = ["x1", "x2", "x3"]
 colors = ["tab:blue", "tab:orange", "tab:green"]

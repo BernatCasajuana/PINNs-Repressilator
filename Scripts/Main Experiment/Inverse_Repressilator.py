@@ -78,14 +78,27 @@ model.train()
 # %% Obtain the PINN prediction
 y_pred = model.predict(t_full)
 
-# %% Estimated parameters
+# %% Obtain the estimated parameters
 print(f"Real C1 value = 10.000000")
 print(f"Real C2 value = 3.000000")
 print(f"Estimated value of C1 = {C1.value():.6f}")
 print(f"Estimated value of C2 = {C2.value():.6f}")
 
-# %% Plot the results
-# Dynamics comparison between ODE simulation and PINN prediction
+# %% Plot the training loss
+loss_history = model.losshistory
+loss_train = np.array(loss_history.loss_train)
+epochs = np.arange(len(loss_train))
+
+plt.figure(figsize=(8, 5))
+plt.semilogy(epochs, loss_train, label="Training loss")
+plt.xlabel("Iteration")
+plt.ylabel("Loss (log scale)")
+plt.title("Training Loss over Iterations")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# %% Plot the prediction results
 plt.figure(figsize=(12, 6))
 labels = ["x1", "x2", "x3"]
 colors = ["tab:blue", "tab:orange", "tab:green"]
@@ -101,7 +114,7 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-# Plot the evolution of the estimated parameters
+# %% Plot the evolution of the estimated parameters
 variables = np.loadtxt("variables.dat")
 plt.plot(variables[:, 0], variables[:, 1], label="C1")
 plt.plot(variables[:, 0], variables[:, 2], label="C2")
