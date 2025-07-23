@@ -3,18 +3,17 @@
 # %% Import necessary libraries
 import os
 os.environ["DDE_BACKEND"] = "tensorflow"  # Force TensorFlow backend before importing deepxde
-
 import tensorflow as tf
 import deepxde as dde
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
 
-# %% Define parameters (initial suspected values and range), initial conditions, and time domain
+# %% Define parameters (with suspected values), initial conditions, and time domain
 C1 = dde.Variable(5.0) # C1 = beta
 C2 = dde.Variable(2.0) # C2 = n
 x0 = np.array([1, 1, 1.2])
-t_max = 20
+t_max = 40
 
 # %% PINN simulation setup
 # Geometry of the problem
@@ -40,7 +39,7 @@ ic1 = dde.icbc.IC(geom, lambda x: x0[0], boundary, component=0)
 ic2 = dde.icbc.IC(geom, lambda x: x0[1], boundary, component=1)
 ic3 = dde.icbc.IC(geom, lambda x: x0[2], boundary, component=2)
 
-# Load observed data from the odeint simulation (Repressilator.npz file)
+# Load observed data from odeint simulation (Repressilator.npz file)
 data = np.load("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator.npz")
 
 # Extract time and concentration data
@@ -68,7 +67,6 @@ net = dde.nn.FNN(layer_size, activation, initializer)
 net.apply_output_transform(lambda x, y: tf.nn.softplus(y))
 
 # %% Compile and train
-# Define data, optimizer, learning rate, training iterations and external trainable variables (C1 and C2)
 model = dde.Model(data, net)
 
 # Callback class to save parameter evolution
@@ -86,10 +84,11 @@ class SaveVariablesCallback(dde.callbacks.VariableValue):
 # Create callback instance
 variable_callback = SaveVariablesCallback([C1, C2], period=100)
 
+# Define data, optimizer, learning rate, training iterations and external trainable variables (C1 and C2)
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2]) # implement weight for each loss term if needed: loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
 model.train(iterations=15000, callbacks=[variable_callback])
 
-# Fine tuning with L-BFGS optimizer (if possible)
+# Fine tuning with L-BFGS optimizer (if needed)
 # model.compile("L-BFGS", external_trainable_variables=[C1, C2])
 # model.train()
 
@@ -131,10 +130,10 @@ plt.figure(figsize=(10, 6))
 for i in range(len(component_names)):
     plt.semilogy(epochs, loss_components[i], label=component_names[i])
 
-plt.xlabel("Iterations (x1000)")
+plt.xlabel("Iteration (x1000)")
 plt.ylabel("Loss (log scale)")
 plt.title("Training Loss over Iterations")
-plt.xlim(0, 5)
+plt.xlim(0, 15)
 plt.legend()
 plt.tight_layout()
 plt.show()
@@ -158,11 +157,11 @@ plt.show()
 # %% Plot the evolution of the estimated parameters
 variables = np.loadtxt("variables.dat")
 plt.figure(figsize=(8, 5))
-plt.plot(variables[:, 0], label="C1")
-plt.plot(variables[:, 1], label="C2")
-plt.xlabel("Iterations (x100)")
+plt.plot(variables[:, 0], label="C1 (beta)", color="tab:red")
+plt.plot(variables[:, 1], label="C2 (n)", color="tab:blue")
+plt.xlabel("Iteration")
 plt.ylabel("Estimated Parameter Value")
-plt.title("Evolution of Estimated Parameters")
+plt.title("Evolution of Estimated Repressilator Parameters")
 plt.legend()
 plt.tight_layout()
 plt.show()
