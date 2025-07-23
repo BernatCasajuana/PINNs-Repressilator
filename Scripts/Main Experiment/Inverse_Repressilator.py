@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import csv
 
 # %% Define parameters (initial suspected values and range), initial conditions, and time domain
-C1 = dde.Variable(0.5, min=0.01, max=20) # C1 = beta
-C2 = dde.Variable(2.0, min=0.5, max=6) # C2 = n
+C1 = dde.Variable(5.0) # C1 = beta
+C2 = dde.Variable(2.0) # C2 = n
 x0 = np.array([1, 1, 1.2])
 t_max = 20
 
@@ -40,8 +40,7 @@ ic1 = dde.icbc.IC(geom, lambda x: x0[0], boundary, component=0)
 ic2 = dde.icbc.IC(geom, lambda x: x0[1], boundary, component=1)
 ic3 = dde.icbc.IC(geom, lambda x: x0[2], boundary, component=2)
 
-# Obtain observed data from odeint solution (experimental data in practice)
-# Load the data from the .npz file
+# Load observed data from the odeint simulation (Repressilator.npz file)
 data = np.load("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator.npz")
 
 # Extract time and concentration data
@@ -65,12 +64,30 @@ activation = "sin"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
+# Force positive values for outputs
+net.apply_output_transform(lambda x, y: tf.nn.softplus(y))
+
 # %% Compile and train
 # Define data, optimizer, learning rate, training iterations and external trainable variables (C1 and C2)
 model = dde.Model(data, net)
+
+# Callback class to save parameter evolution
+class SaveVariablesCallback(dde.callbacks.VariableValue):
+    def __init__(self, var_list, period=100):
+        super().__init__(var_list, period)
+        self.estimated_params = []
+        self.var = var_list
+
+    def on_epoch_end(self):
+        super().on_epoch_end()
+        vals = [v.value().numpy().item() for v in self.var]
+        self.estimated_params.append(vals)
+
+# Create callback instance
+variable_callback = SaveVariablesCallback([C1, C2], period=100)
+
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2]) # implement weight for each loss term if needed: loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
-variable = dde.callbacks.VariableValue([C1, C2], period=100, filename="variables.dat") # Save the values of C1 and C2 during training
-model.train(iterations=5000, callbacks=[variable])
+model.train(iterations=5000, callbacks=[variable_callback])
 
 # Fine tuning with L-BFGS optimizer
 model.compile("L-BFGS", external_trainable_variables=[C1, C2])
@@ -84,6 +101,9 @@ print(f"Real C1 value = 10.000000")
 print(f"Real C2 value = 3.000000")
 print(f"Estimated value of C1 = {C1.value():.6f}")
 print(f"Estimated value of C2 = {C2.value():.6f}")
+
+# Save variables evolution
+np.savetxt("variables.dat", np.array(variable_callback.estimated_params))
 
 # Save in CSV
 with open("estimated_parameters.csv", "w", newline="") as csvfile:
@@ -100,7 +120,7 @@ epochs = np.arange(len(loss_train))
 # Transpose the loss array to separate components
 loss_components = loss_train.T
 
-# Name the components for clarity
+## Name the components for clarity
 component_names = [
     "Eq1 (dx1/dt)", "Eq2 (dx2/dt)", "Eq3 (dx3/dt)",
     "IC x1", "IC x2", "IC x3",
@@ -111,9 +131,10 @@ plt.figure(figsize=(10, 6))
 for i in range(len(component_names)):
     plt.semilogy(epochs, loss_components[i], label=component_names[i])
 
-plt.xlabel("Iteration")
+plt.xlabel("Iterations (x1000)")
 plt.ylabel("Loss (log scale)")
 plt.title("Training Loss over Iterations")
+plt.xlim(0, 5)
 plt.legend()
 plt.tight_layout()
 plt.show()
@@ -136,10 +157,12 @@ plt.show()
 
 # %% Plot the evolution of the estimated parameters
 variables = np.loadtxt("variables.dat")
-plt.plot(variables[:, 0], variables[:, 1], label="C1")
-plt.plot(variables[:, 0], variables[:, 2], label="C2")
-plt.xlabel("Iteration")
+plt.figure(figsize=(8, 5))
+plt.plot(variables[:, 0], label="C1")
+plt.plot(variables[:, 1], label="C2")
+plt.xlabel("Iteration (x100)")
 plt.ylabel("Estimated Parameter Value")
 plt.title("Evolution of Estimated Parameters")
 plt.legend()
+plt.tight_layout()
 plt.show()
