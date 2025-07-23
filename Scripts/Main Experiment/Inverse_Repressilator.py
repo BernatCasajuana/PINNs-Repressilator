@@ -40,7 +40,7 @@ ic2 = dde.icbc.IC(geom, lambda x: x0[1], boundary, component=1)
 ic3 = dde.icbc.IC(geom, lambda x: x0[2], boundary, component=2)
 
 # Load observed data from odeint simulation (Repressilator.npz file)
-data = np.load("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator.npz")
+data = np.load("Your path to the dataset/Repressilator.npz")
 
 # Extract time and concentration data
 t_full = data["t"]
@@ -101,11 +101,11 @@ print(f"Real C2 value = 3.000000")
 print(f"Estimated value of C1 = {C1.value():.6f}")
 print(f"Estimated value of C2 = {C2.value():.6f}")
 
-# Save variables evolution
-np.savetxt("variables.dat", np.array(variable_callback.estimated_params))
+# Save parameters evolution
+np.savetxt("Parameters_Evolution.dat", np.array(variable_callback.estimated_params))
 
 # Save in CSV
-with open("estimated_parameters.csv", "w", newline="") as csvfile:
+with open("Estimated_Parameters.csv", "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(["Parameter", "Estimated Value"])
     writer.writerow(["C1", f"{C1.value():.6f}"])
