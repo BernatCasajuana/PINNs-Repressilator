@@ -42,7 +42,7 @@ ic3 = dde.icbc.IC(geom, lambda x: x0[2], boundary, component=2)
 
 # Obtain observed data from odeint solution (experimental data in practice)
 # Load the data from the .npz file
-data = np.load("Repressilator.npz")
+data = np.load("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator.npz")
 
 # Extract time and concentration data
 t_full = data["t"]
