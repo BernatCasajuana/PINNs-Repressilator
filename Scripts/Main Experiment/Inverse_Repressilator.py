@@ -8,10 +8,11 @@ import tensorflow as tf
 import deepxde as dde
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 
-# %% Define parameters (initial suspected values), initial conditions, and time domain
-C1 = dde.Variable(0.5) # C1 = beta
-C2 = dde.Variable(2.0) # C2 = n
+# %% Define parameters (initial suspected values and range), initial conditions, and time domain
+C1 = dde.Variable(0.5, min=0.01, max=20) # C1 = beta
+C2 = dde.Variable(2.0, min=0.5, max=6) # C2 = n
 x0 = np.array([1, 1, 1.2])
 t_max = 20
 
@@ -65,10 +66,10 @@ initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
 
 # %% Compile and train
-# Define data, optimizer, learning rate, training iterations and external trainable variables (C1 and C2, the parameters to be learned)
+# Define data, optimizer, learning rate, training iterations and external trainable variables (C1 and C2)
 model = dde.Model(data, net)
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2]) # implement weight for each loss term if needed: loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
-variable = dde.callbacks.VariableValue([C1, C2], period=500, filename="variables.dat")
+variable = dde.callbacks.VariableValue([C1, C2], period=100, filename="variables.dat") # Save the values of C1 and C2 during training
 model.train(iterations=5000, callbacks=[variable])
 
 # Fine tuning with L-BFGS optimizer
@@ -83,6 +84,13 @@ print(f"Real C1 value = 10.000000")
 print(f"Real C2 value = 3.000000")
 print(f"Estimated value of C1 = {C1.value():.6f}")
 print(f"Estimated value of C2 = {C2.value():.6f}")
+
+# Save in CSV
+with open("estimated_parameters.csv", "w", newline="") as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(["Parameter", "Estimated Value"])
+    writer.writerow(["C1", f"{C1.value():.6f}"])
+    writer.writerow(["C2", f"{C2.value():.6f}"])
 
 # %% Plot the training loss
 loss_history = model.losshistory
@@ -99,8 +107,10 @@ component_names = [
     "Obs x1", "Obs x2", "Obs x3"
 ]
 
-plt.figure(figsize=(8, 5))
-plt.semilogy(epochs, loss_train, label="Training loss")
+plt.figure(figsize=(10, 6))
+for i in range(len(component_names)):
+    plt.semilogy(epochs, loss_components[i], label=component_names[i])
+
 plt.xlabel("Iteration")
 plt.ylabel("Loss (log scale)")
 plt.title("Training Loss over Iterations")
