@@ -103,9 +103,10 @@ plt.figure(figsize=(10, 6))
 for i in range(len(component_names)):
     plt.semilogy(epochs, loss_components[i], label=component_names[i])
 
-plt.xlabel("Iteration")
+plt.xlabel("Iterations (x1000)")
 plt.ylabel("Loss (log scale)")
 plt.title("Training Loss over Iterations")
+plt.xlim(0, 5000)
 plt.legend()
 plt.tight_layout()
 plt.show()
