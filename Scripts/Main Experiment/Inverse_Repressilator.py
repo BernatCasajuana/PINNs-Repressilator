@@ -7,8 +7,8 @@ os.environ["DDE_BACKEND"] = "tensorflow"  # Force TensorFlow backend before impo
 import tensorflow as tf
 import deepxde as dde
 import numpy as np
-import matplotlib.pyplot as plt
 import csv
+import matplotlib.pyplot as plt
 
 # %% Define parameters (initial suspected values and range), initial conditions, and time domain
 C1 = dde.Variable(5.0) # C1 = beta
