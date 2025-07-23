@@ -56,7 +56,7 @@ for i in range(3):
     observe_bc.append(bc)
 
 # Problem setup, with anchors as extra points where the model will be evaluated
-data = dde.data.PDE(geom, ode_system, [ic1, ic2, ic3] + observe_bc, num_domain=5000, num_boundary=2, anchors=t_obs)
+data = dde.data.PDE(geom, ode_system, [ic1, ic2, ic3] + observe_bc, num_domain=1000, num_boundary=2, anchors=t_obs)
 
 # Neural network architecture
 layer_size = [1] + [100] * 5 + [3]
@@ -87,11 +87,11 @@ class SaveVariablesCallback(dde.callbacks.VariableValue):
 variable_callback = SaveVariablesCallback([C1, C2], period=100)
 
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2]) # implement weight for each loss term if needed: loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
-model.train(iterations=5000, callbacks=[variable_callback])
+model.train(iterations=15000, callbacks=[variable_callback])
 
-# Fine tuning with L-BFGS optimizer
-model.compile("L-BFGS", external_trainable_variables=[C1, C2])
-model.train()
+# Fine tuning with L-BFGS optimizer (if possible)
+# model.compile("L-BFGS", external_trainable_variables=[C1, C2])
+# model.train()
 
 # %% Obtain the PINN prediction
 y_pred = model.predict(t_full)
@@ -160,7 +160,7 @@ variables = np.loadtxt("variables.dat")
 plt.figure(figsize=(8, 5))
 plt.plot(variables[:, 0], label="C1")
 plt.plot(variables[:, 1], label="C2")
-plt.xlabel("Iteration (x100)")
+plt.xlabel("Iterations (x100)")
 plt.ylabel("Estimated Parameter Value")
 plt.title("Evolution of Estimated Parameters")
 plt.legend()
