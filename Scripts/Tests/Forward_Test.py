@@ -51,7 +51,7 @@ losshistory, train_state = model.train()
 # %% Plot the loss results
 # Save and plot the best trained result and loss history
 def saveplot_manual(losshistory, train_state, model, data, issave=True, isplot=True):
-    folder = "Your path to the folder where you want to save the results"
+    folder = "Your path to where you want to save the results"
     os.makedirs(folder, exist_ok=True)
     
     loss_steps = np.array(losshistory.steps).flatten()
