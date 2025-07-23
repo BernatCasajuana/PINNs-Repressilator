@@ -102,7 +102,7 @@ component_names = [
 plt.figure(figsize=(10, 6))
 for i in range(len(component_names)):
     plt.semilogy(epochs, loss_components[i], label=component_names[i])
-    
+
 plt.xlabel("Iteration")
 plt.ylabel("Loss (log scale)")
 plt.title("Training Loss over Iterations")
@@ -112,7 +112,7 @@ plt.show()
 
 # %% Plot the prediction results
 plt.figure(figsize=(12, 6))
-labels = ["x1", "x2", "x3"]
+labels = ["Repressor 1", "Repressor 2", "Repressor 3"]
 colors = ["tab:blue", "tab:orange", "tab:green"]
 
 for i in range(3):
