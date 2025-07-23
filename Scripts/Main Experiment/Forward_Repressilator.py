@@ -106,7 +106,7 @@ for i in range(len(component_names)):
 plt.xlabel("Iterations (x1000)")
 plt.ylabel("Loss (log scale)")
 plt.title("Training Loss over Iterations")
-plt.xlim(0, 5000)
+plt.xlim(0, 5)
 plt.legend()
 plt.tight_layout()
 plt.show()
