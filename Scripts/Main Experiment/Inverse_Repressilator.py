@@ -89,6 +89,16 @@ loss_history = model.losshistory
 loss_train = np.array(loss_history.loss_train)
 epochs = np.arange(len(loss_train))
 
+# Transpose the loss array to separate components
+loss_components = loss_train.T
+
+# Name the components for clarity
+component_names = [
+    "Eq1 (dx1/dt)", "Eq2 (dx2/dt)", "Eq3 (dx3/dt)",
+    "IC x1", "IC x2", "IC x3",
+    "Obs x1", "Obs x2", "Obs x3"
+]
+
 plt.figure(figsize=(8, 5))
 plt.semilogy(epochs, loss_train, label="Training loss")
 plt.xlabel("Iteration")
