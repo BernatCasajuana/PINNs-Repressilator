@@ -29,7 +29,7 @@ x_ode = scipy.integrate.odeint(protein_repressilator_rhs, x0, t.flatten(), args=
 np.savez("Repressilator.npz", t=t, y=x_ode)
 
 # %% PINN simulation setup
-# Geometry of the problem (time domain)
+# Geometry of the problem
 geom = dde.geometry.TimeDomain(0, t_max)
 
 # Define ODE system
@@ -97,6 +97,5 @@ plt.xlabel("Time")
 plt.ylabel("Protein Concentration")
 plt.title("Repressilator Dynamics: ODE vs PINN")
 plt.legend()
-plt.grid()
 plt.tight_layout()
 plt.show()

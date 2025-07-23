@@ -1,22 +1,24 @@
-# Import necessary libraries
+# %% Import necessary libraries
 import os
 os.environ["DDE_BACKEND"] = "tensorflow"  # Force TensorFlow backend before importing deepxde
+
 import tensorflow as tf
 import deepxde as dde
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Define the system parameters (initial suspected values)
-C1 = dde.Variable(1.0)
-C2 = dde.Variable(1.0)
+# %% Define parameters (initial suspected values), initial conditions, and time domain
+C1 = dde.Variable(0.5) # C1 = beta
+C2 = dde.Variable(2.0) # C2 = n
+x0 = np.array([1, 1, 1.2])
+t_max = 20
 
-# Define the geometry of the problem (time domain)
-geom = dde.geometry.TimeDomain(0, 40)
+# %% PINN simulation setup
+# Geometry of the problem
+geom = dde.geometry.TimeDomain(0, t_max)
 
-# Define the ODE system as a function for DeepXDE (with TensorFlow tensors)
+# Define the ODE system
 def ode_system(x, y):
-    x = tf.convert_to_tensor(x)
-    y = tf.convert_to_tensor(y)
     y1, y2, y3 = y[:, 0:1], y[:, 1:2], y[:, 2:3]
     dy1 = dde.grad.jacobian(y, x, i=0, j=0)
     dy2 = dde.grad.jacobian(y, x, i=1, j=0)
@@ -28,58 +30,81 @@ def ode_system(x, y):
 
     return [eq1, eq2, eq3]
 
-# Define initial conditions within the geometry, function and boundary
+# Initial conditions
 def boundary(_, on_initial):
     return on_initial
-ic1 = dde.icbc.IC(geom, lambda x: 1, boundary, component=0)
-ic2 = dde.icbc.IC(geom, lambda x: 1, boundary, component=1)
-ic3 = dde.icbc.IC(geom, lambda x: 1.2, boundary, component=2)
+ic1 = dde.icbc.IC(geom, lambda x: x0[0], boundary, component=0)
+ic2 = dde.icbc.IC(geom, lambda x: x0[1], boundary, component=1)
+ic3 = dde.icbc.IC(geom, lambda x: x0[2], boundary, component=2)
 
-# Load observed data from Repressilator.npz
-def gen_traindata():
-    data = np.load("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator.npz")
-    return data["t"], data["y"]
+# Obtain observed data from odeint solution (experimental data in practice)
+# Load the data from the .npz file
+data = np.load("Repressilator.npz")
 
-observe_t, observe_y = gen_traindata()
+# Extract time and concentration data
+t_full = data["t"]
+x_full = data["y"]
+t_obs = t_full[::10] # Every 10 time points
+x_obs = x_full[::10] # Corresponding concentrations
 
-# Normalize the observed data
-y_mean = observe_y.mean(axis=0)
-y_std = observe_y.std(axis=0)
-observe_y_normalized = (observe_y - y_mean) / y_std
+# Implement observed data as boundary conditions
+observe_bc = []
+for i in range(3):
+    bc = dde.icbc.PointSetBC(t_obs, x_obs[:, i:i+1], component=i)
+    observe_bc.append(bc)
 
-# Define observation points for the normalized data
-observe_y0 = dde.icbc.PointSetBC(observe_t, observe_y_normalized[:, 0:1], component=0)
-observe_y1 = dde.icbc.PointSetBC(observe_t, observe_y_normalized[:, 1:2], component=1)
-observe_y2 = dde.icbc.PointSetBC(observe_t, observe_y_normalized[:, 2:3], component=2)
+# Problem setup, with anchors as extra points where the model will be evaluated
+data = dde.data.PDE(geom, ode_system, [ic1, ic2, ic3] + observe_bc, num_domain=5000, num_boundary=2, anchors=t_obs)
 
-# Define the PDE data for the system, including the initial conditions and observation points. Anchors are extra points where the model will be evaluated, in this case the time points of the training data.
-data = dde.data.PDE(
-    geom,
-    ode_system,
-    [ic1, ic2, ic3, observe_y0, observe_y1, observe_y2],
-    num_domain=400,
-    num_boundary=2,
-    anchors=observe_t,
-)
+# Neural network architecture
+layer_size = [1] + [100] * 5 + [3]
+activation = "sin"
+initializer = "Glorot uniform"
+net = dde.nn.FNN(layer_size, activation, initializer)
 
-# Define the neural network architecture
-net = dde.nn.FNN([1] + [40] * 3 + [3], "tanh", "Glorot uniform")
-
-# Compile the model with the data, optimizer (adam), learning rate, and external trainable variables (C1 and C2). The external trainable variables are the parameters.
+# %% Compile and train
+# Define data, optimizer, learning rate, training iterations and external trainable variables (C1 and C2, the parameters to be learned)
 model = dde.Model(data, net)
-model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2])
-variable = dde.callbacks.VariableValue([C1, C2], period=600, filename="variables.dat")
+model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2]) # implement weight for each loss term if needed: loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
+variable = dde.callbacks.VariableValue([C1, C2], period=500, filename="variables.dat")
+model.train(iterations=5000, callbacks=[variable])
 
-# Train the model with the specified number of iterations and callbacks. The variable callback saves the values of C1, C2, and C3 every 600 iterations.
-losshistory, train_state = model.train(iterations=60000, callbacks=[variable])
+# Fine tuning with L-BFGS optimizer
+model.compile("L-BFGS", external_trainable_variables=[C1, C2])
+model.train()
 
-# Predict the normalized values using the trained model
-t_test = observe_t
-y_pred_normalized = model.predict(t_test)
+# %% Obtain the PINN prediction
+y_pred = model.predict(t_full)
 
-# De-normalize the predicted values
-y_pred = y_pred_normalized * y_std + y_mean
+# %% Estimated parameters
+print(f"Real C1 value = 10.000000")
+print(f"Real C2 value = 3.000000")
+print(f"Estimated value of C1 = {C1.value():.6f}")
+print(f"Estimated value of C2 = {C2.value():.6f}")
 
-# Get the predicted parameters
-print(f"C1 = {C1.value():.6f}")
-print(f"C2 = {C2.value():.6f}")
+# %% Plot the results
+# Dynamics comparison between ODE simulation and PINN prediction
+plt.figure(figsize=(12, 6))
+labels = ["x1", "x2", "x3"]
+colors = ["tab:blue", "tab:orange", "tab:green"]
+
+for i in range(3):
+    plt.plot(t_full, x_full[:, i], "-", color=colors[i], label=f"{labels[i]} (ODE simulation)")
+    plt.plot(t_full, y_pred[:, i], "--", color=colors[i], label=f"{labels[i]} (PINN prediction)")
+
+plt.xlabel("Time")
+plt.ylabel("Protein Concentration")
+plt.title("Repressilator Dynamics: ODE vs PINN")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# Plot the evolution of the estimated parameters
+variables = np.loadtxt("variables.dat")
+plt.plot(variables[:, 0], variables[:, 1], label="C1")
+plt.plot(variables[:, 0], variables[:, 2], label="C2")
+plt.xlabel("Iteration")
+plt.ylabel("Estimated Parameter Value")
+plt.title("Evolution of Estimated Parameters")
+plt.legend()
+plt.show()
