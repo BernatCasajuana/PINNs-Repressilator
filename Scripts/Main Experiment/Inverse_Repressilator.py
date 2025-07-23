@@ -1,3 +1,5 @@
+# Parameter estimation in the repressilator model using PINNs and DeepXDE
+
 # %% Import necessary libraries
 import os
 os.environ["DDE_BACKEND"] = "tensorflow"  # Force TensorFlow backend before importing deepxde
