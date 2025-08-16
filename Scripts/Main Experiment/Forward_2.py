@@ -26,7 +26,7 @@ def protein_repressilator_rhs(x, t, beta, n):
 x_ode = scipy.integrate.odeint(protein_repressilator_rhs, x0, t.flatten(), args=(beta, n))
 
 # Save as .npz file for inverse problem
-np.savez("Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator_2.npz", t=t, y=x_ode)
+np.savez("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator_2.npz", t=t, y=x_ode)
 
 # %% PINN simulation setup
 # Geometry of the problem
