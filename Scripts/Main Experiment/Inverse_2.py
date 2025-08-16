@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 # %% Define parameters (with suspected values), initial conditions, and time domain
 C1 = dde.Variable(5.0) # C1 = beta
-C2 = dde.Variable(2.0) # C2 = n
+C2 = dde.Variable(1.3) # C2 = n
 x0 = np.array([1, 1, 1.2])
 t_max = 40
 
@@ -86,7 +86,7 @@ variable_callback = SaveVariablesCallback([C1, C2], period=100)
 
 # Define data, optimizer, learning rate, training iterations and external trainable variables (C1 and C2)
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2]) # implement weight for each loss term if needed: loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
-model.train(iterations=15000, callbacks=[variable_callback])
+model.train(iterations=50000, callbacks=[variable_callback])
 
 # Fine tuning with L-BFGS optimizer (if needed)
 # model.compile("L-BFGS", external_trainable_variables=[C1, C2])
@@ -97,15 +97,15 @@ y_pred = model.predict(t_full)
 
 # %% Obtain the estimated parameters
 print(f"Real C1 value = 10.000000")
-print(f"Real C2 value = 3.000000")
+print(f"Real C2 value = 1.500000")
 print(f"Estimated value of C1 = {C1.value():.6f}")
 print(f"Estimated value of C2 = {C2.value():.6f}")
 
 # Save parameters evolution
-np.savetxt("Parameters_Evolution.dat", np.array(variable_callback.estimated_params))
+np.savetxt("Parameters_Evolution_2.dat", np.array(variable_callback.estimated_params))
 
 # Save in CSV
-with open("Estimated_Parameters.csv", "w", newline="") as csvfile:
+with open("Estimated_Parameters_2.csv", "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(["Parameter", "Estimated Value"])
     writer.writerow(["C1", f"{C1.value():.6f}"])
@@ -155,7 +155,7 @@ plt.tight_layout()
 plt.show()
 
 # %% Plot the evolution of the estimated parameters
-variables = np.loadtxt("variables.dat")
+variables = np.loadtxt("Parameters_Evolution_2.dat")
 plt.figure(figsize=(8, 5))
 plt.plot(variables[:, 0], label="C1 (beta)", color="tab:red")
 plt.plot(variables[:, 1], label="C2 (n)", color="tab:blue")
