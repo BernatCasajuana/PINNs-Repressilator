@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
 import deepxde as dde
+import tensorflow as tf
 
 # %% Define parameters, initial conditions, and time domain
 beta = 10
@@ -70,6 +71,9 @@ layer_size = [1] + [100] * 5 + [3]
 activation = "sin"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
+
+# Force positive values for outputs (necessary if in stable parameters region)
+net.apply_output_transform(lambda x, y: tf.nn.softplus(y))
 
 # %% Compile and train
 # Define data, optimizer, learning rate, metrics and training iterations
