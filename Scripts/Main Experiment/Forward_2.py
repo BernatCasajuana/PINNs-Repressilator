@@ -8,7 +8,7 @@ import deepxde as dde
 
 # %% Define parameters, initial conditions, and time domain
 beta = 10
-n = 1
+n = 1.5
 x0 = np.array([1, 1, 1.2])
 n_points = 1000
 t_max = 20
