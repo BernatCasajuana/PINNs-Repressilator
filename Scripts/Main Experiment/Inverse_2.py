@@ -86,7 +86,7 @@ variable_callback = SaveVariablesCallback([C1, C2], period=100)
 
 # Define data, optimizer, learning rate, training iterations and external trainable variables (C1 and C2)
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2]) # implement weight for each loss term if needed: loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
-model.train(iterations=50000, callbacks=[variable_callback])
+model.train(iterations=60000, callbacks=[variable_callback])
 
 # Fine tuning with L-BFGS optimizer (if needed)
 # model.compile("L-BFGS", external_trainable_variables=[C1, C2])
