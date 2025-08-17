@@ -1,13 +1,14 @@
-# Prediction of Repressilator dynamics using PINNs and DeepXDE (Unstable Paramters Region, n = 3 and beta = 10)
+# Prediction of Repressilator dynamics using PINNs and DeepXDE (Stable Paramters Region, n = 3 and beta = 5)
 
 # %% Import necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate
 import deepxde as dde
+import tensorflow as tf
 
 # %% Define parameters, initial conditions, and time domain
-beta = 10
+beta = 5
 n = 3
 x0 = np.array([1, 1, 1.2])
 n_points = 1000
@@ -26,7 +27,7 @@ def protein_repressilator_rhs(x, t, beta, n):
 x_ode = scipy.integrate.odeint(protein_repressilator_rhs, x0, t.flatten(), args=(beta, n))
 
 # Save as .npz file for inverse problem
-np.savez("Your path to folder of choice/Repressilator.npz", t=t, y=x_ode)
+np.savez("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator_3.npz", t=t, y=x_ode)
 
 # %% PINN simulation setup
 # Geometry of the problem
@@ -70,6 +71,9 @@ layer_size = [1] + [100] * 5 + [3]
 activation = "sin"
 initializer = "Glorot uniform"
 net = dde.nn.FNN(layer_size, activation, initializer)
+
+# Force positive values for outputs (necessary if in stable parameters region)
+net.apply_output_transform(lambda x, y: tf.nn.softplus(y))
 
 # %% Compile and train
 # Define data, optimizer, learning rate, metrics and training iterations

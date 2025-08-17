@@ -1,4 +1,4 @@
-# Prediction of Repressilator dynamics using PINNs and DeepXDE (Stable Paramters Region)
+# Prediction of Repressilator dynamics using PINNs and DeepXDE (Stable Paramters Region, n = 1.5 and beta = 10)
 
 # %% Import necessary libraries
 import numpy as np
