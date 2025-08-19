@@ -1,4 +1,4 @@
-# Prediction of Repressilator dynamics using PINNs and DeepXDE (Parameters: n = 1.5 and beta = 5, corresponding to a stable system)
+# Prediction of Repressilator dynamics using PINNs and DeepXDE (Parameters: n = 1.5 and beta = 5, corresponding to a stable system without oscillations)
 
 # %% Import necessary libraries
 import numpy as np
