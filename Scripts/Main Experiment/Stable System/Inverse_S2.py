@@ -1,4 +1,4 @@
-# Parameter estimation in the repressilator model using PINNs and DeepXDE (Parameters: n = 3 and beta = 5, corresponding to Unstable System)
+# Parameter estimation in the repressilator model using PINNs and DeepXDE (Parameters: n = 1.5 and beta = 5, corresponding to Stable System)
 
 # %% Import necessary libraries
 import os
@@ -10,8 +10,8 @@ import csv
 import matplotlib.pyplot as plt
 
 # %% Define parameters (with suspected values), initial conditions, and time domain
-C1 = dde.Variable(4.0) # C1 = beta
-C2 = dde.Variable(2.0) # C2 = n
+C1 = dde.Variable(5.0) # C1 = beta
+C2 = dde.Variable(1.3) # C2 = n
 x0 = np.array([1, 1, 1.2])
 t_max = 40
 
@@ -40,7 +40,7 @@ ic2 = dde.icbc.IC(geom, lambda x: x0[1], boundary, component=1)
 ic3 = dde.icbc.IC(geom, lambda x: x0[2], boundary, component=2)
 
 # Load observed data from odeint simulation (Repressilator.npz file)
-data = np.load("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator_U2.npz")
+data = np.load("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Repressilator_S2.npz")
 
 # Extract time and concentration data
 t_full = data["t"]
@@ -86,7 +86,7 @@ variable_callback = SaveVariablesCallback([C1, C2], period=100)
 
 # Define data, optimizer, learning rate, training iterations and external trainable variables (C1 and C2)
 model.compile("adam", lr=0.001, external_trainable_variables=[C1, C2]) # implement weight for each loss term if needed: loss_weights = [1, 1, 1, 1, 1, 1, 1, 1, 1])
-model.train(iterations=15000, callbacks=[variable_callback])
+model.train(iterations=60000, callbacks=[variable_callback])
 
 # Fine tuning with L-BFGS optimizer (if needed)
 # model.compile("L-BFGS", external_trainable_variables=[C1, C2])
@@ -102,10 +102,10 @@ print(f"Estimated value of C1 = {C1.value():.6f}")
 print(f"Estimated value of C2 = {C2.value():.6f}")
 
 # Save parameters evolution
-np.savetxt("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Parameters_Evolution_U2.dat", np.array(variable_callback.estimated_params))
+np.savetxt("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Parameters_Evolution_S2.dat", np.array(variable_callback.estimated_params))
 
 # Save in CSV
-with open("/Users/bernatcasajuana/github/PINNs_Repressilator/Results/Estimated_Parameters_U2.csv", "w", newline="") as csvfile:
+with open("/Users/bernatcasajuana/github/PINNs_Repressilator/Results/Estimated_Parameters_S2.csv", "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(["Parameter", "Estimated Value"])
     writer.writerow(["C1", f"{C1.value():.6f}"])
@@ -155,7 +155,7 @@ plt.tight_layout()
 plt.show()
 
 # %% Plot the evolution of the estimated parameters
-variables = np.loadtxt("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Parameters_Evolution_U2.dat")
+variables = np.loadtxt("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Parameters_Evolution_S2.dat")
 plt.figure(figsize=(8, 5))
 plt.plot(variables[:, 0], label="C1 (beta)", color="tab:red")
 plt.plot(variables[:, 1], label="C2 (n)", color="tab:blue")

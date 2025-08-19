@@ -155,7 +155,7 @@ plt.tight_layout()
 plt.show()
 
 # %% Plot the evolution of the estimated parameters
-variables = np.loadtxt("Parameters_Evolution_U1.dat")
+variables = np.loadtxt("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Parameters_Evolution_U1.dat")
 plt.figure(figsize=(8, 5))
 plt.plot(variables[:, 0], label="C1 (beta)", color="tab:red")
 plt.plot(variables[:, 1], label="C2 (n)", color="tab:blue")
