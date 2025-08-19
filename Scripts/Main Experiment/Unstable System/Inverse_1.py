@@ -40,7 +40,7 @@ ic2 = dde.icbc.IC(geom, lambda x: x0[1], boundary, component=1)
 ic3 = dde.icbc.IC(geom, lambda x: x0[2], boundary, component=2)
 
 # Load observed data from odeint simulation (Repressilator.npz file)
-data = np.load("Your path to the dataset/Repressilator.npz")
+data = np.load("Your path to the dataset/Repressilator_U1.npz")
 
 # Extract time and concentration data
 t_full = data["t"]
