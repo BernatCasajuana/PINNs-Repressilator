@@ -1,4 +1,4 @@
-# Parameter estimation in the repressilator model using PINNs and DeepXDE (Stable Parameters Region, n = 1.5 and beta = 10)
+# Parameter estimation in the repressilator model using PINNs and DeepXDE (Parameters: n = 1.5 and beta = 10, corresponding to Stable System)
 
 # %% Import necessary libraries
 import os
