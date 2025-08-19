@@ -10,7 +10,7 @@ import csv
 import matplotlib.pyplot as plt
 
 # %% Define parameters (with suspected values), initial conditions, and time domain
-C1 = dde.Variable(5.0) # C1 = beta
+C1 = dde.Variable(4.0) # C1 = beta
 C2 = dde.Variable(1.3) # C2 = n
 x0 = np.array([1, 1, 1.2])
 t_max = 40
