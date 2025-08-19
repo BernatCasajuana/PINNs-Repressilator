@@ -102,10 +102,10 @@ print(f"Estimated value of C1 = {C1.value():.6f}")
 print(f"Estimated value of C2 = {C2.value():.6f}")
 
 # Save parameters evolution
-np.savetxt("Parameters_Evolution_3.dat", np.array(variable_callback.estimated_params))
+np.savetxt("Parameters_Evolution_U2.dat", np.array(variable_callback.estimated_params))
 
 # Save in CSV
-with open("Estimated_Parameters_3.csv", "w", newline="") as csvfile:
+with open("Estimated_Parameters_U2.csv", "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(["Parameter", "Estimated Value"])
     writer.writerow(["C1", f"{C1.value():.6f}"])
