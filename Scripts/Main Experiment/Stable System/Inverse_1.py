@@ -102,10 +102,10 @@ print(f"Estimated value of C1 = {C1.value():.6f}")
 print(f"Estimated value of C2 = {C2.value():.6f}")
 
 # Save parameters evolution
-np.savetxt("Parameters_Evolution_S1.dat", np.array(variable_callback.estimated_params))
+np.savetxt("/Users/bernatcasajuana/github/PINNs_Repressilator/Datasets/Parameters_Evolution_S1.dat", np.array(variable_callback.estimated_params))
 
 # Save in CSV
-with open("Estimated_Parameters_S1.csv", "w", newline="") as csvfile:
+with open("/Users/bernatcasajuana/github/PINNs_Repressilator/Results/Estimated_Parameters_S1.csv", "w", newline="") as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(["Parameter", "Estimated Value"])
     writer.writerow(["C1", f"{C1.value():.6f}"])
@@ -155,7 +155,7 @@ plt.tight_layout()
 plt.show()
 
 # %% Plot the evolution of the estimated parameters
-variables = np.loadtxt("Parameters_Evolution_2.dat")
+variables = np.loadtxt("Parameters_Evolution_S1.dat")
 plt.figure(figsize=(8, 5))
 plt.plot(variables[:, 0], label="C1 (beta)", color="tab:red")
 plt.plot(variables[:, 1], label="C2 (n)", color="tab:blue")
