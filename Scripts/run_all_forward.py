@@ -1,16 +1,23 @@
-# run_all_forward.py
+"""
+run_all_forward.py
 
-# Import necessary libraries
+Automates the training of the PINN for all datasets stored in the 'datasets' folder.
+It iterates over every .npz file, calling the `run_forward` function for each dataset,
+and saves the corresponding predictions and loss plots in structured output directories.
+This script enables running a full set of forward experiments for multiple parameter and noise combinations without manual intervention.
+"""
+
+# %% Import necessary libraries
 import os
 
-# Import the modular "run_forward" function from run_forward.py
+# %% Import the modular 'run_forward' function from run_forward.py
 from run_forward import run_forward
 
-# Define dataset folder and results folder
+# %% Define dataset folder and results folder
 dataset_folder = "datasets"
 outdir_base = "results"
 
-# Run PINN for each file in the datasets folder
+# %% Run PINN for each file in the datasets folder
 for file in os.listdir(dataset_folder):
     if file.endswith(".npz"):
         dataset_path = os.path.join(dataset_folder, file)

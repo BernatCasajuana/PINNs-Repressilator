@@ -1,6 +1,12 @@
-# run_forward.py
-# Prediction of Repressilator dynamics using PINNs and DeepXDE
-# Modular version: load dataset, train PINN, save predictions and loss plots
+"""
+run_forward.py
+
+Trains a Physics-Informed Neural Network (PINN) to predict the Repressilator dynamics from a single dataset.
+It loads a .npz dataset containing time points, protein concentrations, and model parameters (beta, n, noise).
+The ODE system and initial conditions are defined for the PINN.
+The network is trained using Adam optimization followed by L-BFGS fine-tuning.
+Predictions and training losses are saved as plots in a dedicated output folder.
+"""
 
 # %% Import necessary libraries
 import numpy as np

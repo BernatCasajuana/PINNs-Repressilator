@@ -1,4 +1,11 @@
-# generate_data.py
+"""
+generate_data.py
+
+Defines the Repressilator equations and generates datasets with simulated protein concentrations over time.
+Noise can be added to emulate experimental conditions.
+The main function, `generate_dataset`, solves the ODE system and saves the results as a .npz file.
+An example block at the end shows how to manually generate a particulat dataset.
+"""
 
 # %% Import necessary libraries
 import numpy as np
