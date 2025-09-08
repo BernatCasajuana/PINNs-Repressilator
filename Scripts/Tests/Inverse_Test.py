@@ -1,4 +1,4 @@
-# Parameter estimation of the Lorenz ODE system using PINNs and DeepXDE
+# Parameter estimation of the Lorenz ODE system using PINNs and DeepXDE.
 # From: https://deepxde.readthedocs.io
 
 # %% Import necessary libraries

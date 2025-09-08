@@ -1,4 +1,4 @@
-# Predictive model for a simple ODE system using PINNs and DeepXDE
+# Predictive model for a simple ODE system using PINNs and DeepXDE.
 # From: https://deepxde.readthedocs.io
 
 # %% Import necessary libraries

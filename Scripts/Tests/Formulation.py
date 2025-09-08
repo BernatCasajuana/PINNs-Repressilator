@@ -1,4 +1,4 @@
-# Comparing numerical derivatives from scipy's odeint with TensorFlow's evaluation of the ODE system (correct formulation)
+# Comparing numerical derivatives from scipy's odeint with TensorFlow's evaluation of the ODE system (correct formulation).
 
 # %% Import necessary libraries
 import os
