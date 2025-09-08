@@ -27,27 +27,27 @@ def ode_system(x, y, beta, n):
 def run_forward(dataset_path, loss_weights=None, outdir_base="results"):
     # Load dataset
     data_npz = np.load(dataset_path)
-    t = data_npz["t"]
-    x_obs = data_npz["y"]          # data with noise
-    x0 = x_obs[0]                   # initial condition
+    t = data_npz["t"]                                       
+    x_obs = data_npz["y"]                                   
+    x0 = x_obs[0]                                           
     beta, n = float(data_npz["beta"]), float(data_npz["n"])
-    noise_sigma = data_npz["noise"]
+    noise_sigma = data_npz["noise"]                        
     
-    # Create output directory
+    # Create results directory
     outdir = os.path.join(outdir_base, f"beta{beta}_n{n}_noise{noise_sigma}")
     os.makedirs(outdir, exist_ok=True)
     
-    # Geometry
+    # Define time domain
     geom = dde.geometry.TimeDomain(0, float(t.max()))
 
-    # Initial conditions
+    # Define initial conditions
     def boundary(_, on_initial):
         return on_initial
     ic1 = dde.icbc.IC(geom, lambda x: x0[0], boundary, component=0)
     ic2 = dde.icbc.IC(geom, lambda x: x0[1], boundary, component=1)
     ic3 = dde.icbc.IC(geom, lambda x: x0[2], boundary, component=2)
 
-    # Observations (subsampling)
+    # Observations (subsampling every 10 time points)
     t_obs = t[::10]
     x_obs_sub = x_obs[::10]
 
@@ -56,11 +56,11 @@ def run_forward(dataset_path, loss_weights=None, outdir_base="results"):
         bc = dde.icbc.PointSetBC(t_obs, x_obs_sub[:, i:i+1], component=i)
         observe_bc.append(bc)
 
-    # Define PDE function with parameters
+    # Define function with parameters
     def ode_func(x, y):
         return ode_system(x, y, beta, n)
 
-    # Data object
+    # Define data object for DeepXDE
     data_pde = dde.data.PDE(
         geom,
         ode_func,
@@ -70,15 +70,15 @@ def run_forward(dataset_path, loss_weights=None, outdir_base="results"):
         num_test=1000,
     )
     
-    # Neural network
-    layer_size = [1] + [100] * 5 + [3]
-    net = dde.nn.FNN(layer_size, "sin", "Glorot uniform")
+    # Neural network architecture
+    layer_size = [1] + [100] * 5 + [3] # 5 hidden layers with 100 neurons each
+    net = dde.nn.FNN(layer_size, "sin", "Glorot uniform") # Sine activation and Glorot initialization for oscillatory problems
     net.apply_output_transform(lambda x, y: tf.nn.softplus(y))  # positive outputs
 
-    # Model
+    # Model for training
     model = dde.Model(data_pde, net)
-    model.compile("adam", lr=0.001, loss_weights=loss_weights)
-    model.train(epochs=5000)
+    model.compile("adam", lr=0.001, loss_weights=loss_weights) # Adam optimizer
+    model.train(epochs=5000) 
 
     # Fine-tuning with L-BFGS
     model.compile("L-BFGS")
@@ -86,3 +86,54 @@ def run_forward(dataset_path, loss_weights=None, outdir_base="results"):
 
     # Predictions
     y_pred = model.predict(t)
+
+# %% Plot training loss
+    loss_history = model.losshistory
+    loss_train = np.array(loss_history.loss_train)      # loss history per component
+    epochs = np.arange(len(loss_train))
+    loss_components = loss_train.T
+
+    component_names = [
+        "Eq1 (dx1/dt)", "Eq2 (dx2/dt)", "Eq3 (dx3/dt)",
+        "IC x1", "IC x2", "IC x3",
+        "Obs x1", "Obs x2", "Obs x3"
+    ]
+
+    plt.figure(figsize=(10, 6))
+    for i in range(len(component_names)):
+        plt.semilogy(epochs, loss_components[i], label=component_names[i])
+    plt.xlabel("Iterations")
+    plt.ylabel("Loss (log scale)")
+    plt.title(f"Training Loss (beta={beta}, n={n}, noise={noise_sigma})")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(outdir, "loss_components.png"))  # save plot
+    plt.close()
+
+    # %% Plot predictions vs data
+    plt.figure(figsize=(12, 6))
+    labels = ["Repressor 1", "Repressor 2", "Repressor 3"]
+    colors = ["tab:blue", "tab:orange", "tab:green"]
+
+    for i in range(3):
+        plt.plot(t, x_obs[:, i], "-", color=colors[i], label=f"{labels[i]} (data)")       # obtained data
+        plt.plot(t, y_pred[:, i], "--", color=colors[i], label=f"{labels[i]} (PINN)")     # PINN prediction
+    plt.xlabel("Time")
+    plt.ylabel("Protein Concentration")
+    plt.title(f"Repressilator Dynamics (beta={beta}, n={n}, noise={noise_sigma})")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(outdir, "predictions.png"))  # save plot
+    plt.close()
+
+    print(f"Saved results in {outdir}")  # print path to results
+
+# %% Command line interface
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", type=str, required=True, help="Path to dataset .npz") # dataset path
+    parser.add_argument("--loss_weights", type=float, nargs="+", default=None, help="Loss weights for ODE/IC/Obs") # optional loss weights
+    args = parser.parse_args()
+
+    # Run forward with specified dataset and loss weights
+    run_forward(args.dataset, args.loss_weights)
