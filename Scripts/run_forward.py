@@ -1,10 +1,9 @@
 """
 run_forward.py
 
-Trains a Physics-Informed Neural Network (PINN) to predict the Repressilator dynamics from a single dataset.
-It loads a .npz dataset containing time points, protein concentrations, and model parameters (beta, n, noise).
-The ODE system and initial conditions are defined for the PINN.
-The network is trained using Adam optimization followed by L-BFGS fine-tuning.
+Trains a Physics-Informed Neural Network (PINN) to predict the Repressilator dynamics using a single dataset.
+Loads the .npz file containing time points, simulated protein concentrations, and model parameters (beta, n, noise).
+The ODE system, initial conditions and the observed data are defined for the PINN, which is then trained.
 Predictions and training losses are saved as plots in a dedicated output folder.
 """
 
