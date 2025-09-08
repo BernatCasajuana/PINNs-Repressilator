@@ -39,28 +39,7 @@ def generate_dataset(beta, n, x0, t_max, n_points, noise_sigma=0.0, outdir="data
 # Path to saved file
     print(f"Saved dataset: {fpath}")
 
-# %% Main execution block
+# %% Custom combination, only executed when running this script directly
 if __name__ == "__main__":
-    # Stable system without noise
-    generate_dataset(beta=10, n=1.5, x0=[1, 1, 1.2], t_max=20, n_points=1000, noise_sigma=0.0)
-
-    # Stable system with noise
-    generate_dataset(beta=10, n=1.5, x0=[1, 1, 1.2], t_max=20, n_points=1000, noise_sigma=0.05)
-    
-    # Stable system without noise
-    generate_dataset(beta=5.0, n=1.5, x0=[1, 1, 1.2], t_max=20, n_points=1000, noise_sigma=0.0)
-
-    # Stable system with noise
-    generate_dataset(beta=5.0, n=1.5, x0=[1, 1, 1.2], t_max=20, n_points=1000, noise_sigma=0.05)
-
-    # Unstable system without noise
+    # Example usage
     generate_dataset(beta=10, n=3.0, x0=[1, 1, 1.2], t_max=20, n_points=1000, noise_sigma=0.0)
-
-    # Unstable system with noise
-    generate_dataset(beta=10, n=3.0, x0=[1, 1, 1.2], t_max=20, n_points=1000, noise_sigma=0.05)
-    
-    # Unstable system without noise
-    generate_dataset(beta=5.0, n=3.0, x0=[1, 1, 1.2], t_max=20, n_points=1000, noise_sigma=0.0)
-
-    # Unstable system with noise
-    generate_dataset(beta=5.0, n=3.0, x0=[1, 1, 1.2], t_max=20, n_points=1000, noise_sigma=0.05)
