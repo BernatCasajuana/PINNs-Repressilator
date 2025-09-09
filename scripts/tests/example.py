@@ -1,4 +1,4 @@
-# Simple example of solving an ODE using PINNs.
+# Simple example of solving an ODE using PINNs
 # From: https://i-systems.github.io/tutorial/KSNVE/220525/01_PINN.html#3.-Methond-for-Solving-ODE-with-Neural-Networks
 
 # %% Import necessary libraries
