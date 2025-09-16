@@ -39,7 +39,7 @@ def generate_dataset(beta, n, x0, t_max, n_points, noise_sigma=0.0, outdir="data
     else:
         y_noisy = y_clean
 # Generate filename
-    fname = f"Repressilator_beta{beta}_n{n}_noise{noise_sigma}.npz"
+    fname = f"beta{beta}_n{n}_noise{noise_sigma}.npz"
     fpath = os.path.join(outdir, fname)
 # Save dataset as .npz file
     np.savez(fpath, t=t, y=y_noisy, y_clean=y_clean, beta=beta, n=n, noise=noise_sigma)
