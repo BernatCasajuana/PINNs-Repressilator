@@ -10,9 +10,9 @@ All datasets are saved in the 'datasets' folder for later use in the PINN traini
 from generate_data import generate_dataset
 
 # %% Define parameters and noise levels
-betas = [5.0, 10.0]
-ns = [1.5, 3.0]
-noise_levels = [0.0, 0.01, 0.05, 0.1]
+betas = [1.0, 5.0, 10.0, 20.0]
+ns = [2.0, 2.5, 3.0, 3.5]
+noise_levels = [0.0, 0.01, 0.05, 0.1, 0.2]
 x0 = [1, 1, 1.2]
 t_max = 20
 n_points = 1000
