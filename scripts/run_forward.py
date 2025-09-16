@@ -29,7 +29,7 @@ def ode_system(x, y, beta, n):
     return [eq1, eq2, eq3]
 
 # %% Main function to run PINN forward problem
-def run_forward(dataset_path, loss_weights=None, outdir_base="results"):
+def run_forward(dataset_path, loss_weights=None, outdir_base="results_forward"):
     # Load dataset
     data_npz = np.load(dataset_path)
     t = data_npz["t"]                                       

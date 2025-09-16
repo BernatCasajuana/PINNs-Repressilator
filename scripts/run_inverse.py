@@ -31,7 +31,7 @@ def ode_system(x, y, C1, C2):
     return [eq1, eq2, eq3]
 
 # %% Main function to run PINN inverse problem
-def run_inverse(dataset_path, outdir_base="results", C1_guess=5.0, C2_guess=2.0, loss_weights=None):
+def run_inverse(dataset_path, outdir_base="results_inverse", C1_guess=5.0, C2_guess=2.0, loss_weights=None):
     # Load dataset
     data_npz = np.load(dataset_path)
     t = data_npz["t"]
